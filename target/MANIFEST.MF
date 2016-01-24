@@ -1,0 +1,18 @@
+Manifest-Version: 1.0
+Bundle-SymbolicName: org.openhab.binding.kinect;singleton:=true
+Export-Package: org.openhab.binding.kinect,org.openhab.binding.kinect.
+ handler
+Bundle-Name: Kinect Binding
+Bundle-Version: 2.0.0.201601212138
+Bundle-ClassPath: .
+Bundle-ManifestVersion: 2
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-Vendor: openHAB
+Import-Package: com.google.common.collect,com.google.gson;version="2.3
+ .1",javax.jmdns;version="3.4.2",org.apache.commons.net.util,org.eclip
+ se.smarthome.config.core,org.eclipse.smarthome.config.discovery,org.e
+ clipse.smarthome.core.library.types,org.eclipse.smarthome.core.thing,
+ org.eclipse.smarthome.core.thing.binding,org.eclipse.smarthome.core.t
+ ypes,org.eclipse.smarthome.model.script.actions,org.slf4j
+Service-Component: OSGI-INF/*
+
