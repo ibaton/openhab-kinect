@@ -17,8 +17,8 @@
 			</parameter>
 
 			<parameter name="port" type="integer">
-				<label>Timeout</label>
-				<description>Default port.</description>
+				<label>Port</label>
+				<description>Default port</description>
 				<default>10993</default>
 			</parameter>
 
