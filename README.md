@@ -1,6 +1,7 @@
 # Kinect Binding
 
-This binding integrates a way to connect your kinect device with openhab 
+This binding connect your kinect device with openhab through the server at 
+https://github.com/ibaton/openhab-kinect
 
 ## Supported Things
 
