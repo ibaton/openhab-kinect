@@ -8,8 +8,6 @@
  */
 package org.openhab.binding.kinect.internal;
 
-import static org.openhab.binding.kinect.KinectBindingConstants.*;
-
 import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.HashMap;
@@ -20,6 +18,7 @@ import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.binding.BaseThingHandlerFactory;
 import org.eclipse.smarthome.core.thing.binding.ThingHandler;
+import org.openhab.binding.kinect.KinectBindingConstants;
 import org.openhab.binding.kinect.handler.KinectConnector;
 import org.openhab.binding.kinect.handler.KinectConnector.DeviceCallback;
 import org.openhab.binding.kinect.handler.KinectConnector.KinectItem;
@@ -39,7 +38,7 @@ public class KinectHandlerFactory extends BaseThingHandlerFactory {
 
     private Map<String, KinectServer> kinectServers = new HashMap<>();
 
-    class KinectServer {
+    public static class KinectServer {
 
         private String host;
         private int port;
@@ -74,11 +73,19 @@ public class KinectHandlerFactory extends BaseThingHandlerFactory {
         }
 
         public void removeDevice(KinectHandler device) {
-            devices.remove(device.getName());
+            removeDevice(device.getName());
+        }
+
+        public void removeDevice(String deviceName) {
+            devices.remove(deviceName);
         }
 
         public Collection<KinectHandler> getDevices() {
             return devices.values();
+        }
+
+        public void stop() {
+            connector.stop();
         }
 
         public void start() {
@@ -94,20 +101,28 @@ public class KinectHandlerFactory extends BaseThingHandlerFactory {
                     }
                 }
             });
+            connector.start();
         }
     }
 
     @Override
     public boolean supportsThingType(ThingTypeUID thingTypeUID) {
-        return SUPPORTED_THING_TYPES_UIDS.contains(thingTypeUID);
+        return KinectBindingConstants.SUPPORTED_THING_TYPES_UIDS.contains(thingTypeUID);
+    }
+
+    @Override
+    protected void removeHandler(ThingHandler thingHandler) {
+        for (KinectServer server : kinectServers.values()) {
+            server.stop();
+        }
+        super.removeHandler(thingHandler);
     }
 
     @Override
     protected ThingHandler createHandler(Thing thing) {
 
         ThingTypeUID thingTypeUID = thing.getThingTypeUID();
-
-        if (thingTypeUID.equals(THING_TYPE_DEVICE)) {
+        if (thingTypeUID.equals(KinectBindingConstants.THING_TYPE_DEVICE)) {
             String name = (String) thing.getConfiguration().get("name");
             String hostname = (String) thing.getConfiguration().get("hostname");
             BigDecimal port = (BigDecimal) thing.getConfiguration().get("port");
@@ -119,6 +134,7 @@ public class KinectHandlerFactory extends BaseThingHandlerFactory {
             if (server == null) {
                 server = new KinectServer(hostname, port.intValue());
                 kinectServers.put(serverId, server);
+                server.start();
             }
 
             KinectHandler device = new KinectHandler(thing);

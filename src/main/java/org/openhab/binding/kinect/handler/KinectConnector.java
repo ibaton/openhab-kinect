@@ -7,10 +7,14 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 public class KinectConnector {
+    private final Logger logger = LoggerFactory.getLogger(KinectConnector.class);
 
     private Gson gson = new GsonBuilder().create();
 
@@ -56,6 +60,7 @@ public class KinectConnector {
      * Stop communication with server
      */
     public void stop() {
+        logger.info("Closing connection to Kinect Server " + host);
         running = false;
         try {
             client.close();
@@ -68,22 +73,30 @@ public class KinectConnector {
      * Initialize the server.
      */
     private void setup() {
-        try {
-            while (running) {
+        while (running) {
+            try {
+                logger.info("Connecting to Kinect Server " + host + ":" + port);
                 client = new Socket(host, port);
+                logger.info("Connected to Kinect Server " + host + ":" + port);
                 BufferedReader reader = new BufferedReader(new InputStreamReader(client.getInputStream()));
                 while (running && client.isConnected()) {
                     String line = reader.readLine();
                     KinectMessage message = gson.fromJson(line, KinectMessage.class);
                     callback.onItemsChanged(message.getItems());
                 }
+            } catch (IOException e) {
+                logger.error("Kinect Socket Error ", e);
+                e.printStackTrace();
+            }
 
-                if (running) {
+            if (running) {
+                try {
+                    logger.info("Connection to kinect server lost reconnecting in 60 seconds");
                     Thread.sleep(60000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
                 }
             }
-        } catch (IOException | InterruptedException e) {
-            e.printStackTrace();
         }
     }
 
